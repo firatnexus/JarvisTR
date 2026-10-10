@@ -28,10 +28,12 @@ class CommandProcessor(
         // 1. Önce AI ile anlamaya çalış
         if (prefs.aiEnabled && prefs.groqApiKey.isNotBlank()) {
             aiResolver.resolve(rawInput) { result ->
-                if (result != null && result.intent != "unknown") {
+                if (result != null && result.intent.isNotBlank() && result.intent != "unknown") {
+                    // AI başarıyla anladı
                     executeAiIntent(result, onDone)
                 } else {
-                    // AI başarısız → kural tabanlıya düş
+                    // AI başarısız veya unknown → kural tabanlı
+                    // (sessiz fallback, kullanıcıya "anlayamadım" demesin diye direkt kurallar)
                     processRules(input, onDone)
                 }
             }
