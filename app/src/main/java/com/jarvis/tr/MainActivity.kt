@@ -172,11 +172,14 @@ class MainActivity : AppCompatActivity() {
 
     private fun showSettingsDialog() {
         val prefs = PrefsManager(this)
+        val aiStatus = if (prefs.aiEnabled && prefs.groqApiKey.isNotBlank()) "Açık ✓" else if (prefs.aiEnabled) "Açık (key yok)" else "Kapalı"
         val options = arrayOf(
             "Ses Tonu (Pitch): ${"%.2f".format(prefs.pitch)}",
             "Konuşma Hızı: ${"%.2f".format(prefs.rate)}",
             "Otomatik Yeniden Başlat: ${if (prefs.autoRestart) "Açık" else "Kapalı"}",
             "Kullanıcı Adı: ${prefs.userName.ifBlank { "Ayarlanmamış" }}",
+            "AI Asistan: $aiStatus",
+            "Groq API Key Gir",
             "Erişilebilirlik Ayarlarını Aç"
         )
         AlertDialog.Builder(this)
@@ -190,10 +193,36 @@ class MainActivity : AppCompatActivity() {
                         Toast.makeText(this, "Otomatik yeniden başlat: ${if (prefs.autoRestart) "Açık" else "Kapalı"}", Toast.LENGTH_SHORT).show()
                     }
                     3 -> setUserName(prefs)
-                    4 -> openAccessibilitySettings()
+                    4 -> {
+                        prefs.aiEnabled = !prefs.aiEnabled
+                        val msg = if (prefs.aiEnabled) "AI açıldı. API key girmeyi unutma." else "AI kapatıldı (sadece kurallar)"
+                        Toast.makeText(this, msg, Toast.LENGTH_LONG).show()
+                    }
+                    5 -> setApiKey(prefs)
+                    6 -> openAccessibilitySettings()
                 }
             }
             .setNegativeButton("Kapat", null)
+            .show()
+    }
+
+    private fun setApiKey(prefs: PrefsManager) {
+        val input = android.widget.EditText(this).apply {
+            setText(prefs.groqApiKey)
+            hint = "gsk_..."
+            setPadding(48, 32, 48, 32)
+            inputType = android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD
+        }
+        AlertDialog.Builder(this)
+            .setTitle("Groq API Key")
+            .setMessage("Ücretsiz key al: console.groq.com\nLlama 3.1 8B Instant kullanılıyor.")
+            .setView(input)
+            .setPositiveButton("Kaydet") { _, _ ->
+                prefs.groqApiKey = input.text.toString().trim()
+                if (prefs.groqApiKey.isNotBlank()) prefs.aiEnabled = true
+                Toast.makeText(this, "API Key kaydedildi", Toast.LENGTH_SHORT).show()
+            }
+            .setNegativeButton("İptal", null)
             .show()
     }
 
