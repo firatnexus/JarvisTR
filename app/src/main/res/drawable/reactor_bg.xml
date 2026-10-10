@@ -1,11 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<shape xmlns:android="http://schemas.android.com/apk/res/android"
-    android:shape="oval">
-    <gradient
-        android:type="radial"
-        android:gradientRadius="50%"
-        android:startColor="#FF00D9FF"
-        android:centerColor="#6600D9FF"
-        android:endColor="#00000308" />
-    <stroke android:width="2dp" android:color="#AA00D9FF" />
-</shape>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="oval">
+            <gradient
+                android:type="radial"
+                android:gradientRadius="50%"
+                android:startColor="#4400E5FF"
+                android:centerColor="#2200E5FF"
+                android:endColor="#0002060F" />
+        </shape>
+    </item>
+    <item android:left="4dp" android:top="4dp" android:right="4dp" android:bottom="4dp">
+        <shape android:shape="oval">
+            <stroke android:width="2dp" android:color="#AA00E5FF" />
+            <solid android:color="#00000000" />
+        </shape>
+    </item>
+</layer-list>
