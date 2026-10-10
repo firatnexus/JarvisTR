@@ -1,12 +1,15 @@
 package com.jarvis.tr
 
 import android.Manifest
+import android.animation.ObjectAnimator
+import android.animation.ValueAnimator
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
-import android.widget.Button
+import android.view.View
+import android.view.animation.LinearInterpolator
 import android.widget.ScrollView
 import android.widget.TextView
 import android.widget.Toast
@@ -14,6 +17,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.google.android.material.button.MaterialButton
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -23,9 +27,11 @@ class MainActivity : AppCompatActivity() {
     private lateinit var logText: TextView
     private lateinit var statusText: TextView
     private lateinit var logScroll: ScrollView
-    private lateinit var startBtn: Button
-    private lateinit var stopBtn: Button
-    private lateinit var settingsBtn: Button
+    private lateinit var startBtn: MaterialButton
+    private lateinit var stopBtn: MaterialButton
+    private lateinit var settingsBtn: MaterialButton
+    private lateinit var reactorOuter: View
+    private var pulseAnimator: ObjectAnimator? = null
 
     companion object {
         private const val REQ_AUDIO = 1001
@@ -42,11 +48,16 @@ class MainActivity : AppCompatActivity() {
         startBtn = findViewById(R.id.startBtn)
         stopBtn = findViewById(R.id.stopBtn)
         settingsBtn = findViewById(R.id.settingsBtn)
+        reactorOuter = findViewById(R.id.reactorOuter)
 
-        log("JARVIS başlatıldı")
-        log("Başlamak için dokun")
+        log("JARVIS TR v2.0 hazır")
+        log("Sistemler online • Emrinize amadeyim")
+        log("Örnek: \"Jarvis YouTube aç\"")
+        log("Örnek: \"Jarvis saat kaç\"")
+        log("Örnek: \"Jarvis sesi yükselt\"")
 
         requestNotifPermission()
+        startPulseAnimation(false)
 
         startBtn.setOnClickListener {
             checkPermissionsAndStart()
@@ -54,14 +65,29 @@ class MainActivity : AppCompatActivity() {
 
         stopBtn.setOnClickListener {
             stopService(Intent(this, VoiceService::class.java))
-            statusText.text = "DURDURULDU"
-            statusText.setTextColor(ContextCompat.getColor(this, R.color.red))
+            updateStatus("DURDURULDU", R.color.statusError)
+            startPulseAnimation(false)
             log("Servis durduruldu")
             Toast.makeText(this, "JARVIS durdu", Toast.LENGTH_SHORT).show()
         }
 
         settingsBtn.setOnClickListener {
             showSettingsDialog()
+        }
+    }
+
+    private fun startPulseAnimation(active: Boolean) {
+        pulseAnimator?.cancel()
+        if (active) {
+            pulseAnimator = ObjectAnimator.ofFloat(reactorOuter, "alpha", 0.7f, 1f).apply {
+                duration = 1200
+                repeatCount = ValueAnimator.INFINITE
+                repeatMode = ValueAnimator.REVERSE
+                interpolator = LinearInterpolator()
+                start()
+            }
+        } else {
+            reactorOuter.alpha = 0.85f
         }
     }
 
@@ -95,7 +121,10 @@ class MainActivity : AppCompatActivity() {
         if (!isAccessibilityEnabled()) {
             AlertDialog.Builder(this)
                 .setTitle("Erişilebilirlik İzni Gerekli")
-                .setMessage("Telefonunu kontrol edebilmem için JarvisTR'yi erişilebilirlik hizmetlerinde açman gerekiyor.\n\nAyarlar açılacak, listede JarvisTR Kontrolü'nü bulup AÇ.")
+                .setMessage(
+                    "Telefonunu kontrol edebilmem için JarvisTR'yi erişilebilirlik hizmetlerinde açman gerekiyor.\n\n" +
+                    "Ayarlar açılacak → JarvisTR Kontrolü'nü bul → AÇ"
+                )
                 .setPositiveButton("Ayarları Aç") { _, _ -> openAccessibilitySettings() }
                 .setNegativeButton("İptal", null)
                 .show()
@@ -130,72 +159,89 @@ class MainActivity : AppCompatActivity() {
         } else {
             startService(intent)
         }
-        statusText.text = "DİNLİYORUM"
-        statusText.setTextColor(ContextCompat.getColor(this, R.color.cyan))
+        updateStatus("DİNLİYORUM", R.color.statusListening)
+        startPulseAnimation(true)
         log("Dinleme başladı — konuşabilirsin")
-        log("Örnek: 'Jarvis YouTube aç'")
-        log("Örnek: 'Jarvis Rannee korku oyunları ara'")
         Toast.makeText(this, "JARVIS dinliyor", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun updateStatus(text: String, colorRes: Int) {
+        statusText.text = text
+        statusText.setTextColor(ContextCompat.getColor(this, colorRes))
     }
 
     private fun showSettingsDialog() {
         val prefs = PrefsManager(this)
         val options = arrayOf(
-            "Ses Tonu (Pitch): ${prefs.pitch}",
-            "Konuşma Hızı (Rate): ${prefs.rate}",
-            "Sesli Yanıt: ${if (prefs.voiceOn) "Açık" else "Kapalı"}",
-            "Otomatik Yeniden Dinleme: ${if (prefs.autoRestart) "Açık" else "Kapalı"}"
+            "Ses Tonu (Pitch): ${"%.2f".format(prefs.pitch)}",
+            "Konuşma Hızı: ${"%.2f".format(prefs.rate)}",
+            "Otomatik Yeniden Başlat: ${if (prefs.autoRestart) "Açık" else "Kapalı"}",
+            "Kullanıcı Adı: ${prefs.userName.ifBlank { "Ayarlanmamış" }}",
+            "Erişilebilirlik Ayarlarını Aç"
         )
         AlertDialog.Builder(this)
-            .setTitle("Ayarlar")
+            .setTitle("JARVIS Ayarları")
             .setItems(options) { _, which ->
                 when (which) {
-                    0 -> cyclePitch(prefs)
-                    1 -> cycleRate(prefs)
+                    0 -> adjustPitch(prefs)
+                    1 -> adjustRate(prefs)
                     2 -> {
-                        prefs.voiceOn = !prefs.voiceOn
-                        log("Sesli yanıt: ${if (prefs.voiceOn) "Açık" else "Kapalı"}")
-                    }
-                    3 -> {
                         prefs.autoRestart = !prefs.autoRestart
-                        log("Oto yeniden dinleme: ${if (prefs.autoRestart) "Açık" else "Kapalı"}")
+                        Toast.makeText(this, "Otomatik yeniden başlat: ${if (prefs.autoRestart) "Açık" else "Kapalı"}", Toast.LENGTH_SHORT).show()
                     }
+                    3 -> setUserName(prefs)
+                    4 -> openAccessibilitySettings()
                 }
             }
-            .setPositiveButton("Kapat", null)
+            .setNegativeButton("Kapat", null)
             .show()
     }
 
-    private fun cyclePitch(prefs: PrefsManager) {
-        val options = listOf(0.6f, 0.75f, 0.85f, 1.0f, 1.15f)
-        val current = prefs.pitch
-        val next = options.firstOrNull { it > current } ?: options.first()
-        prefs.pitch = next
-        log("Ses tonu: $next")
+    private fun adjustPitch(prefs: PrefsManager) {
+        val values = floatArrayOf(0.6f, 0.75f, 0.85f, 1.0f, 1.15f, 1.3f)
+        val labels = values.map { "%.2f".format(it) }.toTypedArray()
+        AlertDialog.Builder(this)
+            .setTitle("Ses Tonu (Pitch)")
+            .setItems(labels) { _, which ->
+                prefs.pitch = values[which]
+                Toast.makeText(this, "Pitch: ${labels[which]}", Toast.LENGTH_SHORT).show()
+            }
+            .show()
     }
 
-    private fun cycleRate(prefs: PrefsManager) {
-        val options = listOf(0.8f, 0.9f, 1.0f, 1.1f, 1.2f, 1.3f)
-        val current = prefs.rate
-        val next = options.firstOrNull { it > current } ?: options.first()
-        prefs.rate = next
-        log("Konuşma hızı: $next")
+    private fun adjustRate(prefs: PrefsManager) {
+        val values = floatArrayOf(0.7f, 0.85f, 1.0f, 1.15f, 1.3f)
+        val labels = values.map { "%.2f".format(it) }.toTypedArray()
+        AlertDialog.Builder(this)
+            .setTitle("Konuşma Hızı")
+            .setItems(labels) { _, which ->
+                prefs.rate = values[which]
+                Toast.makeText(this, "Hız: ${labels[which]}", Toast.LENGTH_SHORT).show()
+            }
+            .show()
+    }
+
+    private fun setUserName(prefs: PrefsManager) {
+        val input = android.widget.EditText(this).apply {
+            setText(prefs.userName)
+            hint = "Adınız"
+            setPadding(48, 32, 48, 32)
+        }
+        AlertDialog.Builder(this)
+            .setTitle("Kullanıcı Adı")
+            .setView(input)
+            .setPositiveButton("Kaydet") { _, _ ->
+                prefs.userName = input.text.toString().trim()
+                Toast.makeText(this, "Kaydedildi", Toast.LENGTH_SHORT).show()
+            }
+            .setNegativeButton("İptal", null)
+            .show()
     }
 
     fun log(msg: String) {
-        runOnUiThread {
-            val time = SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(Date())
-            logText.append("[$time] $msg\n")
-            logScroll.post { logScroll.fullScroll(ScrollView.FOCUS_DOWN) }
-        }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        if (VoiceService.isRunning) {
-            statusText.text = "DİNLİYORUM"
-            statusText.setTextColor(ContextCompat.getColor(this, R.color.cyan))
-        }
+        val time = SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(Date())
+        logText.append("[$time] $msg\n")
+        logScroll.post { logScroll.fullScroll(View.FOCUS_DOWN) }
     }
 
     override fun onRequestPermissionsResult(
@@ -204,12 +250,15 @@ class MainActivity : AppCompatActivity() {
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == REQ_AUDIO) {
-            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                checkPermissionsAndStart()
-            } else {
-                log("Mikrofon izni reddedildi")
-            }
+        if (requestCode == REQ_AUDIO && grantResults.isNotEmpty() &&
+            grantResults[0] == PackageManager.PERMISSION_GRANTED
+        ) {
+            checkPermissionsAndStart()
         }
+    }
+
+    override fun onDestroy() {
+        pulseAnimator?.cancel()
+        super.onDestroy()
     }
 }
