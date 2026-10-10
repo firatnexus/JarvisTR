@@ -1,11 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.JarvisTR" parent="Theme.MaterialComponents.NoActionBar">
+    <style name="Theme.JarvisTR" parent="Theme.Material3.Dark.NoActionBar">
         <item name="colorPrimary">@color/cyan</item>
-        <item name="colorPrimaryDark">@color/bg</item>
-        <item name="colorAccent">@color/gold</item>
+        <item name="colorPrimaryContainer">@color/bgCard</item>
+        <item name="colorOnPrimary">@color/bg</item>
+        <item name="colorSecondary">@color/gold</item>
+        <item name="colorSecondaryContainer">@color/bgPanel</item>
+        <item name="colorOnSecondary">@color/bg</item>
+        <item name="colorSurface">@color/bg</item>
+        <item name="colorOnSurface">@color/text</item>
+        <item name="colorSurfaceVariant">@color/bgPanel</item>
+        <item name="colorOnSurfaceVariant">@color/textSecondary</item>
         <item name="android:windowBackground">@color/bg</item>
         <item name="android:statusBarColor">@color/bg</item>
         <item name="android:navigationBarColor">@color/bg</item>
         <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightNavigationBar">false</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+    </style>
+
+    <style name="JarvisButton" parent="Widget.Material3.Button">
+        <item name="android:textAllCaps">false</item>
+        <item name="android:letterSpacing">0.05</item>
+        <item name="cornerRadius">16dp</item>
+        <item name="android:paddingTop">14dp</item>
+        <item name="android:paddingBottom">14dp</item>
+    </style>
+
+    <style name="JarvisButton.Primary" parent="JarvisButton">
+        <item name="backgroundTint">@color/cyan</item>
+        <item name="android:textColor">@color/bg</item>
+    </style>
+
+    <style name="JarvisButton.Secondary" parent="JarvisButton">
+        <item name="backgroundTint">@color/bgPanel</item>
+        <item name="android:textColor">@color/cyan</item>
+        <item name="strokeColor">@color/cyanDim</item>
+        <item name="strokeWidth">1dp</item>
+    </style>
+
+    <style name="JarvisButton.Gold" parent="JarvisButton">
+        <item name="backgroundTint">@color/bgPanel</item>
+        <item name="android:textColor">@color/gold</item>
+        <item name="strokeColor">@color/goldDim</item>
+        <item name="strokeWidth">1dp</item>
     </style>
 </resources>
