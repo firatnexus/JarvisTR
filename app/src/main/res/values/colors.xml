@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="bg">#FF000308</color>
+    <color name="bgPanel">#FF04101C</color>
+    <color name="cyan">#FF00D9FF</color>
+    <color name="cyanDim">#FF4FD1FF</color>
+    <color name="gold">#FFFFB84F</color>
+    <color name="red">#FFFF2D55</color>
+    <color name="green">#FF00FF88</color>
+    <color name="text">#FFB8E5FF</color>
+    <color name="textDim">#88B8E5FF</color>
+</resources>
