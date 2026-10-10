@@ -27,4 +27,13 @@ class PrefsManager(context: Context) {
     var autoRestart: Boolean
         get() = prefs.getBoolean("auto_restart", true)
         set(v) = prefs.edit().putBoolean("auto_restart", v).apply()
+
+    // AI settings
+    var aiEnabled: Boolean
+        get() = prefs.getBoolean("ai_enabled", false)
+        set(v) = prefs.edit().putBoolean("ai_enabled", v).apply()
+
+    var groqApiKey: String
+        get() = prefs.getString("groq_api_key", "") ?: ""
+        set(v) = prefs.edit().putString("groq_api_key", v).apply()
 }
