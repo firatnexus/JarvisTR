@@ -1,5 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">JarvisTR</string>
     <string name="accessibility_label">JarvisTR Kontrolü</string>
-    <string name="accessibility_desc">JarvisTR, sesli komutlarınızı uygulamak için telefonunuzu kontrol eder. Ekranda tıklama, kaydırma, yazma yapabilir.</string>
+    <string name="accessibility_desc">JarvisTR, sesli komutlarınızı uygulamak için telefonunuzu kontrol eder. Ekranda tıklama, kaydırma, yazma ve global eylemler yapabilir.</string>
 </resources>
