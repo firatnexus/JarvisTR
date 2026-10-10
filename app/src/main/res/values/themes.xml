@@ -1,0 +1,11 @@
+<resources>
+    <style name="Theme.JarvisTR" parent="Theme.MaterialComponents.NoActionBar">
+        <item name="colorPrimary">@color/cyan</item>
+        <item name="colorPrimaryDark">@color/bg</item>
+        <item name="colorAccent">@color/gold</item>
+        <item name="android:windowBackground">@color/bg</item>
+        <item name="android:statusBarColor">@color/bg</item>
+        <item name="android:navigationBarColor">@color/bg</item>
+        <item name="android:windowLightStatusBar">false</item>
+    </style>
+</resources>
