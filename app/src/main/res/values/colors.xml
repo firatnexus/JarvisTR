@@ -1,12 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="bg">#FF000308</color>
-    <color name="bgPanel">#FF04101C</color>
-    <color name="cyan">#FF00D9FF</color>
-    <color name="cyanDim">#FF4FD1FF</color>
-    <color name="gold">#FFFFB84F</color>
-    <color name="red">#FFFF2D55</color>
-    <color name="green">#FF00FF88</color>
-    <color name="text">#FFB8E5FF</color>
-    <color name="textDim">#88B8E5FF</color>
+    <!-- Core Backgrounds -->
+    <color name="bg">#FF02060F</color>
+    <color name="bgPanel">#FF0A1525</color>
+    <color name="bgCard">#FF0D1B2A</color>
+    <color name="bgGlass">#CC0A1525</color>
+
+    <!-- Accents -->
+    <color name="cyan">#FF00E5FF</color>
+    <color name="cyanBright">#FF67F0FF</color>
+    <color name="cyanDim">#9900E5FF</color>
+    <color name="cyanGlow">#3300E5FF</color>
+    <color name="gold">#FFFFC107</color>
+    <color name="goldDim">#99FFC107</color>
+    <color name="red">#FFFF3B5C</color>
+    <color name="green">#FF00E676</color>
+    <color name="orange">#FFFF9100</color>
+    <color name="purple">#FFB388FF</color>
+
+    <!-- Text -->
+    <color name="text">#FFE0F7FF</color>
+    <color name="textSecondary">#FF90CAF9</color>
+    <color name="textDim">#FF54758A</color>
+    <color name="textMuted">#FF3A4F63</color>
+
+    <!-- Status -->
+    <color name="statusListening">#FF00E5FF</color>
+    <color name="statusSpeaking">#FFFFC107</color>
+    <color name="statusIdle">#FF54758A</color>
+    <color name="statusError">#FFFF3B5C</color>
 </resources>
